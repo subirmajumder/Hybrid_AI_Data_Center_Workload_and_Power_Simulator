@@ -117,11 +117,11 @@ All parameters are set at the top of `main()` in `run.py`.
 | `TOTAL_GPUS` | `250` | Total GPUs in the shared cluster. |
 | `UTIL_RATE` | `0.81` | Target utilization. Used only in the output file name; actual utilization is set by the traffic-scale parameters below, which should be tuned for the chosen `TOTAL_GPUS`. |
 | `policy` | `1` | Inference GPU allocation: `0` = **Capped** (limited to `frac * TOTAL_GPUS`), `1` = **Uncapped** (up to `TOTAL_GPUS`). |
-| Inference |---------|-------------|
+| Inference | | |
 | `INF_TRAFFIC_SCALE_RAW` | `2.85` | Baseline scaling of inference arrival rates. The effective scale is `frac * INF_TRAFFIC_SCALE_RAW`. |
 | `VERBOSITY_SCALE` | `0.6` | Multiplier on generated-token lengths (`< 1` shorter outputs, `> 1` longer). |
 | `TOKEN_SPEED` | `"F"` | Token-generation speed class used to select model configurations: `"F"` fast, `"M"` medium, `"S"` slow. |
-| Batch |---------|-------------|
+| Batch | | |
 | `BAT_TRAFFIC_SCALE_RAW` | `0.85` | Baseline scaling of batch arrival rates. |
 | `LO_COEFF`, `MID_COEFF`, `HIGH_COEFF` | `1`, `1.2`, `1.2` | Multipliers for the low-, mid- and high-resource job groups. |
 | `COEFF_MULTIPLIERS` | derived | Per-group multipliers actually applied: `(1 - frac) * BAT_TRAFFIC_SCALE_RAW * <group coeff>`. |
