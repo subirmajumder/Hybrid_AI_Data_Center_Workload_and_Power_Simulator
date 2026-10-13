@@ -5,9 +5,7 @@ The simulator generates synthetic inference and batch workloads from fitted stat
 Code companion to:
 
 > **Workload composition smooths aggregate power demand but leaves short-horizon ramping elevated in AI data centers**
->
 > Subir Majumder, Minlan Yu, Le Xie
->
 > [arXiv:2604.10769](https://arxiv.org/abs/2604.10769)
 
 The paper describes the model, calibration and results. This repository contains the full scenario-generation simulator.
@@ -16,7 +14,7 @@ The paper describes the model, calibration and results. This repository contains
 |----------|-------|
 | Simulator (this repo) | scenario generation, scheduling, power co-simulation |
 | Replication package (Zenodo) | calibration code, processed model artifacts, supporting data, archived experiment outputs, and post-analysis scripts to reproduce the paper's figures and tables: <https://doi.org/10.5281/zenodo.21938360> |
-| Raw traces | MIT SuperCloud ([link](s3://mit-supercloud-dataset/datacenter-challenge/202201/)), Azure LLM inference 2024 ([link](https://github.com/Azure/AzurePublicDataset/blob/master/AzureLLMInferenceDataset2024.md)), ML.ENERGY leaderboard ([link](https://ml.energy/leaderboard/)) |
+| Raw traces | MIT SuperCloud (`s3://mit-supercloud-dataset/datacenter-challenge/202201/`), Azure LLM inference 2024 ([link](https://github.com/Azure/AzurePublicDataset/blob/master/AzureLLMInferenceDataset2024.md)), ML.ENERGY leaderboard ([link](https://ml.energy/leaderboard/)) |
 
 ---
 ## Overview
