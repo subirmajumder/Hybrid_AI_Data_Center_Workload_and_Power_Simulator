@@ -44,7 +44,7 @@ flowchart TD
     E --> I["Aggregate<br/>power"]
     H --> I
 
-    I --> J["Final data-center<br/>power trace"]
+    I --> J["Data-center<br/>power trace"]
 ```
 
 Inference is simulated first because it has priority on the GPUs; batch jobs are scheduled on the capacity it leaves free.
