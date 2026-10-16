@@ -2,7 +2,7 @@
 
 The simulator generates synthetic inference and batch workloads from fitted statistical models, schedules workloads under different scheduling policies, generates workload-level power time series, and produces an aggregated data-center power profile.
 
-This repository is the code companion to **[Workload composition smooths aggregate power demand but leaves short-horizon ramping elevated in AI data centers](https://arxiv.org/abs/2604.10769)** (Subir Majumder, Minlan Yu, and Le Xie). It contains the simulator described in the paper's **main-text Methods** section, along with the calibrated model artifacts needed to run it. The broader [Zenodo replication package](https://doi.org/10.5281/zenodo.23417248) contains processed public data, calibrated model artifacts, and codes to reproduce/validate these calibrated model artifacts.
+This repository is the code companion to **[Workload composition smooths aggregate power demand but leaves short-horizon ramping elevated in AI data centers](https://arxiv.org/abs/2604.10769)** (Subir Majumder, Minlan Yu, and Le Xie). It contains the simulator described in the paper's **main-text Methods** section, along with the calibrated model artifacts needed to run it. The broader [Zenodo replication package](https://doi.org/10.5281/zenodo.23417248) archives the experimental results obtained using this simulator and provides scripts to reproduce the paper's figures and tables. It also contains processed public data, calibrated model artifacts, and codes to reproduce/validate calibrated model artifacts used in this simulator.
 
 At a high level, the simulator performs the following pipeline:
 
@@ -28,11 +28,9 @@ flowchart TD
     I --> J["Data-center<br/>power trace"]
 ```
 
-Inference is simulated first because it has priority on the GPUs; batch jobs are scheduled on the capacity it leaves free. 
+Inference workloads are simulated first because they have priority access to GPUs; batch jobs are then scheduled on the remaining available capacity. 
 
-The broader [Zenodo replication package](https://doi.org/10.5281/zenodo.23417248) also archives the experimental results obtained using this simulator and scripts to reproduce the paper's figures and tables. 
-
-The batch workload models are calibrated using traces from a university computing cluster, whereas the inference workload models are calibrated using production-system traces. The scheduling policies implemented in this simulator are simplified abstractions. Multiple batch-job scheduling policies are included in this simulator to assess the sensitivity of the data center power-demands to scheduling assumptions.
+The batch workload models are calibrated using traces from a university computing cluster, whereas the inference workload models are calibrated using production-system traces. These traces do not represent the full diversity of AI data-center workloads. The scheduling policies implemented in this simulator are simplified abstractions. Multiple batch-job scheduling policies are included to assess the sensitivity of data-center power-demand results to scheduling assumptions.
 
 ---
 ## Environment
