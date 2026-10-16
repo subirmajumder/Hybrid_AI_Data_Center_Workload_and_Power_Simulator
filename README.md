@@ -2,7 +2,7 @@
 
 The simulator generates synthetic inference and batch workloads from fitted statistical models, schedules workloads under different scheduling policies, generates workload-level power time series, and produces an aggregated data-center power profile.
 
-This repository is the code companion to **[Workload composition smooths aggregate power demand but leaves short-horizon ramping elevated in AI data centers](https://arxiv.org/abs/2604.10769)** (Subir Majumder, Minlan Yu, and Le Xie). It contains the simulator described in the paper's **main-text Methods** section, along with the calibrated model artifacts needed to run it. The broader [Zenodo replication package](https://doi.org/10.5281/zenodo.23417248) provides calibration code, processed model artifacts, processed public data, archived experiment outputs, and scripts to reproduce the paper's figures and tables.
+This repository is the code companion to **[Workload composition smooths aggregate power demand but leaves short-horizon ramping elevated in AI data centers](https://arxiv.org/abs/2604.10769)** (Subir Majumder, Minlan Yu, and Le Xie). It contains the simulator described in the paper's **main-text Methods** section, along with the calibrated model artifacts needed to run it. The broader [Zenodo replication package](https://doi.org/10.5281/zenodo.23417248) contains processed public data, calibrated model artifacts, and codes to reproduce/validate these calibrated model artifacts.
 
 At a high level, the simulator performs the following pipeline:
 
@@ -30,7 +30,9 @@ flowchart TD
 
 Inference is simulated first because it has priority on the GPUs; batch jobs are scheduled on the capacity it leaves free. 
 
-Multiple batch-job scheduling policies are used to assess the robustness of the power-demand results to scheduling assumptions. The scheduler implementations in this repository are intended for this sensitivity analysis and should not be treated as reference implementations for benchmarking or evaluating scheduling algorithms.
+The broader [Zenodo replication package](https://doi.org/10.5281/zenodo.23417248) also archives the experimental results obtained using this simulator and scripts to reproduce the paper's figures and tables. 
+
+The batch workload models are calibrated using traces from a university computing cluster, whereas the inference workload models are calibrated using production-system traces. The scheduling policies implemented in this simulator are simplified abstractions. Multiple batch-job scheduling policies are included in this simulator to assess the sensitivity of the data center power-demands to scheduling assumptions.
 
 ---
 ## Environment
@@ -66,7 +68,7 @@ ProcessedData_Models/Batch/       nb_time_mu_alpha_bundle.pkl
                                   power_data_ts_distribution/  (leaf_ts.csv, ts_bins.csv, template CSVs)
 ```
 
-`inference_token_energy.csv` columns: `Model, Max_BS_(reqs), TP, PP, Energy/req_(J), Avg TPOT_(s), Avg_Output_Tokens, Token_Speed`.
+`inference_token_energy.csv` columns: `Model, Max_BS_(reqs), TP, PP, Energy/req_(J), Avg TPOT_(s), Avg_Output_Tokens, Token_Speed`. These measurements were obtained from **[ML.ENERGY](https://ml.energy/leaderboard/)** and are also archived in **Supplementary Table 4** of the accompanying paper.
 
 > The `.pkl` files are Python pickles. Only load files from sources you trust. You can regenerate them by running the calibration code in the Zenodo package.
 
