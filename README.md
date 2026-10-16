@@ -36,7 +36,7 @@ The batch workload models are calibrated using traces from a university computin
 >
 > - The simulator models only workload-driven power. Cooling, on-site storage, backup generation, and other facility-level controls are not modeled.
 > - Batch power templates are calibrated on `V100 GPUs with an assumed rated power of 350 W` and rescaled to an `H100 80GB HBM3 GPUs with a rated power of 700 W` (see `GPU_POWER_SCALE` below).
-> - Inference arrival and token models are calibrated on `{{one week}}` of production trace data; longer simulations repeat that calendar pattern and are not independent samples of it.
+> - Inference arrival and token models are calibrated on `one week` of production trace data; longer simulations repeat that calendar pattern and are not independent samples of it.
 > - Outputs are intended for *relative* comparisons of variability across workload compositions.
 
 ---
