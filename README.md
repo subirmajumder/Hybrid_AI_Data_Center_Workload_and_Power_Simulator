@@ -30,7 +30,14 @@ flowchart TD
 
 Inference workloads are simulated first because they have priority access to GPUs; batch jobs are then scheduled on the remaining available capacity. 
 
-The batch workload models are calibrated using traces from a university computing cluster, whereas the inference workload models are calibrated using production-system traces. These traces do not represent the full diversity of AI data-center workloads. The scheduling policies implemented in this simulator are simplified abstractions. Multiple batch-job scheduling policies are included to assess the sensitivity of data-center power-demand results to scheduling assumptions.
+The batch workload models are calibrated using traces from a university computing cluster, whereas the inference workload models are calibrated using production-system traces. These traces do not represent the full diversity of AI data-center workloads. The scheduling policies implemented in this simulator are simplified abstractions. Multiple batch-job scheduling policies are included to assess the sensitivity of data-center power-demand results to scheduling assumptions. 
+
+**Scope and limitations**
+>
+> - The simulator models only workload-driven power. Cooling, on-site storage, backup generation, and other facility-level controls are not modeled.
+> - Batch power templates are calibrated on `V100 GPUs with an assumed rated power of 350 W` and rescaled to an `H100 80GB HBM3 GPUs with a rated power of 700 W` (see `GPU_POWER_SCALE` below).
+> - Inference arrival and token models are calibrated on `{{one week}}` of production trace data; longer simulations repeat that calendar pattern and are not independent samples of it.
+> - Outputs are intended for *relative* comparisons of variability across workload compositions.
 
 ---
 ## Environment
@@ -49,6 +56,9 @@ Install dependencies with:
 ```bash
 pip install -r requirements.txt
 ```
+
+> The fitted-model `.pkl` files were saved with the versions listed above and may fail to load, or load incorrectly, under different statsmodels / NumPy / pandas versions. You may regenerate the artifacts (see *Regenerating the calibrated artifacts* below).
+> 
 ---
 ## Model files needed
 
@@ -69,6 +79,27 @@ ProcessedData_Models/Batch/       nb_time_mu_alpha_bundle.pkl
 `inference_token_energy.csv` columns: `Model, Max_BS_(reqs), TP, PP, Energy/req_(J), Avg TPOT_(s), Avg_Output_Tokens, Token_Speed`. These measurements were obtained from **[ML.ENERGY](https://ml.energy/leaderboard/)** and are also archived in **Supplementary Table 4** of the accompanying paper.
 
 > The `.pkl` files are Python pickles. Only load files from sources you trust. You can regenerate them by running the calibration code in the Zenodo package.
+
+**Regenerating the calibrated artifacts**
+
+> The files above are produced by the calibration code in the Zenodo package. Raw data sources:
+>
+> - **Batch jobs and power profiles:** MIT SuperCloud dataset (`s3://mit-supercloud-dataset/datacenter-challenge/202201/`)
+> - **Inference requests:** Azure LLM Inference Dataset 2024 (https://github.com/Azure/AzurePublicDataset/blob/master/AzureLLMInferenceDataset2024.md)
+> - **Inference serving energy:** ML.ENERGY leaderboard (https://ml.energy/leaderboard/)
+>
+> > | Artifact | Produced by (Zenodo script) | Raw input |
+> | --- | --- | --- |
+> | `nb_time_mu_alpha_bundle.pkl` | `Analysis_ModelBuild/Supp_Tab_1_Supp_Fig_2_3.py` | MIT SuperCloud |
+> | `batch_hourlyarrival_ln_alr.pkl` | `Analysis_ModelBuild/Supp_Fig_4.py` | MIT SuperCloud |
+> | `batch_cluster_tl_gpu_dist.pkl`, `batch_runtime_dist.pkl` | `Analysis_ModelBuild/Supp_Fig_5_6.py` | MIT SuperCloud |
+> | `power_data_ts_distribution/` | `Analysis_ModelBuild/Supp_Fig_7_8.py` | MIT SuperCloud |
+> | `nb2_model_alpha.pkl` | `Analysis_ModelBuild/Supp_Tab_2_3_Supp_Fig_13_14_15.py` | Azure LLM trace |
+> | `conv_generated_tokens_model.json`, `code_generated_tokens_model.json` | `Analysis_ModelBuild` | Azure LLM trace |
+> | `inference_token_energy.csv` | n/a (Supp. Table 4) | ML.ENERGY |
+> 
+>
+> Regenerated artifacts are expected to exactly match the shipped ones.
 
 ---
 ## Running a scenario
@@ -96,19 +127,21 @@ All parameters are set at the top of `main()` in `run.py`.
 | `N_DAYS` | `90` | Length of the simulation, in days. |
 | `frac` | `0.3` | Fraction of offered workload assigned to inference. The remaining `1 - frac` goes to batch. `0` = batch only, `1` = inference only. |
 | `TOTAL_GPUS` | `250` | Total GPUs in the shared cluster. |
-| `UTIL_RATE` | `0.81` | Target utilization. Used only in the output file name; actual utilization is set by the traffic-scale parameters below, which should be tuned for the chosen `TOTAL_GPUS`. |
+| `UTIL_RATE` | `0.81` | Label only: does not control utilization. |
 | `policy` | `1` | Inference GPU allocation: `0` = **Capped** (limited to `frac * TOTAL_GPUS`), `1` = **Uncapped** (up to `TOTAL_GPUS`). |
 | Inference | | |
 | `INF_TRAFFIC_SCALE_RAW` | `2.85` | Baseline scaling of inference arrival rates. The effective scale is `frac * INF_TRAFFIC_SCALE_RAW`. |
 | `VERBOSITY_SCALE` | `0.6` | Multiplier on generated-token lengths (`< 1` shorter outputs, `> 1` longer). |
-| `TOKEN_SPEED` | `"F"` | Token-generation speed class used to select model configurations: `"F"` fast, `"M"` medium, `"S"` slow. |
+| `TOKEN_SPEED` | `"F"` | Token-generation speed class used to select model configurations: `"F"` fast, `"M"` medium, `"S"` slow. Classes are defined by average time per output token (see Supplementary Table 4). |
 | Batch | | |
 | `BAT_TRAFFIC_SCALE_RAW` | `0.85` | Baseline scaling of batch arrival rates. |
 | `LO_COEFF`, `MID_COEFF`, `HIGH_COEFF` | `1`, `1.2`, `1.2` | Multipliers for the low-, mid- and high-resource job groups. |
 | `COEFF_MULTIPLIERS` | derived | Per-group multipliers actually applied: `(1 - frac) * BAT_TRAFFIC_SCALE_RAW * <group coeff>`. |
-| `N_TZ` | `5` | Number of time-zone offsets in the batch arrival model. |
+| `N_TZ` | `5` | Number of time-zone offsets in the batch arrival model. `N_TZ = 5` is the multi-time-zone variant |
 | `SEGMENT_DURATION` | `7200` | Checkpoint segment length for batch jobs, in seconds. |
-| `SCHEDULER` | `"SWF"` | `"FCFS_BKFL"` = first-come-first-served with backfilling; `"SWF"` = greedy smallest-work-first (sorted by GPUs, then runtime). |
+| `SCHEDULER` | `"SWF"` | `"FCFS_BKFL"` = first-come-first-served with backfilling; `"SWF"` = greedy smallest-work-first (sorted by GPUs, then runtime). SWF uses realized runtimes (clairvoyant). We use these schedulers as a part of sensitivity analysis. Please check our scheduler implementation for details. |
+
+**Targeting a utilization.** Utilization is not an input. It results from `TOTAL_GPUS` and the traffic-scale parameters. 
 
 ---
 ## Outputs
@@ -118,7 +151,7 @@ All parameters are set at the top of `main()` in `run.py`.
 | Column | Description |
 |--------|-------------|
 | `timestamp` | Minute timestamp |
-| `power_batch_kW`, `power_inference_kW`, `power_total_kW` | Power in kW |
+| `power_batch_kW`, `power_inference_kW`, `power_total_kW` | Power in kW. `power_total_kW` does not include idle GPU power. |
 | `running_batch_gpus`, `running_inf_gpus` | GPUs in use |
 | `batch_arrivals`, `inf_arrivals` | Arrivals per minute |
 | `running_request_batch` | Running batch segments |
