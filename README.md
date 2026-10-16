@@ -37,7 +37,7 @@ The batch workload models are calibrated using traces from a university computin
 > - The simulator models only workload-driven power. Cooling, on-site storage, backup generation, and other facility-level controls are not modeled.
 > - Batch power templates are calibrated on `V100 GPUs with an assumed rated power of 350 W` and rescaled to an `H100 80GB HBM3 GPUs with a rated power of 700 W` (see `GPU_POWER_SCALE` below).
 > - Inference arrival and token models are calibrated on `one week` of production trace data; longer simulations repeat that calendar pattern and are not independent samples of it.
-> - Outputs are intended for *relative* comparisons of variability across workload compositions.
+> - Outputs are synthetic and are intended only for *relative* comparisons of variability across workload compositions and scheduling policies. They are not measurements of any real facility, and they are not intended as a authoritative representation of data-center power demand.
 
 ---
 ## Environment
@@ -88,14 +88,14 @@ ProcessedData_Models/Batch/       nb_time_mu_alpha_bundle.pkl
 > - **Inference requests:** Azure LLM Inference Dataset 2024 (https://github.com/Azure/AzurePublicDataset/blob/master/AzureLLMInferenceDataset2024.md)
 > - **Inference serving energy:** ML.ENERGY leaderboard (https://ml.energy/leaderboard/)
 >
-> > | Artifact | Produced by (Zenodo script) | Raw input |
+> | Artifact | Produced by (Zenodo script) | Raw input |
 > | --- | --- | --- |
 > | `nb_time_mu_alpha_bundle.pkl` | `Analysis_ModelBuild/Supp_Tab_1_Supp_Fig_2_3.py` | MIT SuperCloud |
 > | `batch_hourlyarrival_ln_alr.pkl` | `Analysis_ModelBuild/Supp_Fig_4.py` | MIT SuperCloud |
 > | `batch_cluster_tl_gpu_dist.pkl`, `batch_runtime_dist.pkl` | `Analysis_ModelBuild/Supp_Fig_5_6.py` | MIT SuperCloud |
 > | `power_data_ts_distribution/` | `Analysis_ModelBuild/Supp_Fig_7_8.py` | MIT SuperCloud |
 > | `nb2_model_alpha.pkl` | `Analysis_ModelBuild/Supp_Tab_2_3_Supp_Fig_13_14_15.py` | Azure LLM trace |
-> | `conv_generated_tokens_model.json`, `code_generated_tokens_model.json` | `Analysis_ModelBuild` | Azure LLM trace |
+> | `conv_generated_tokens_model.json`, `code_generated_tokens_model.json` | `Analysis_ModelBuild/Supp_Tab_2_3_Supp_Fig_13_14_15.py` | Azure LLM trace |
 > | `inference_token_energy.csv` | n/a (Supp. Table 4) | ML.ENERGY |
 > 
 >
