@@ -13,7 +13,7 @@ The paper describes the model, calibration and results. This repository contains
 | Resource | Where |
 |----------|-------|
 | Simulator (this repo) | scenario generation, scheduling, power co-simulation |
-| Replication package (Zenodo) | calibration code, processed model artifacts, supporting data, archived experiment outputs, and post-analysis scripts to reproduce the paper's figures and tables: <https://doi.org/10.5281/zenodo.21938360> |
+| Replication package (Zenodo) | calibration code, processed model artifacts, processed public data, archived experiment outputs, and scripts to reproduce the paper's figures and tables: <https://doi.org/10.5281/zenodo.23417248> |
 | Raw traces | MIT SuperCloud (`s3://mit-supercloud-dataset/datacenter-challenge/202201/`), Azure LLM inference 2024 ([link](https://github.com/Azure/AzurePublicDataset/blob/master/AzureLLMInferenceDataset2024.md)), ML.ENERGY leaderboard ([link](https://ml.energy/leaderboard/)) |
 
 ---
@@ -209,7 +209,7 @@ Random seeds are fixed in each module, so identical configurations reproduce ide
   year          = {2026},
   eprint        = {2604.10769},
   archivePrefix = {arXiv},
-  note          = {Replication package: https://doi.org/10.5281/zenodo.21938360}
+  note          = {Replication package: https://doi.org/10.5281/zenodo.23417248}
 }
 ```
 Released under the MIT license; see `LICENSE`.
