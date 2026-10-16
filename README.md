@@ -37,7 +37,7 @@ The batch workload models are calibrated using traces from a university computin
 > - The simulator models only workload-driven power. Cooling, on-site storage, backup generation, and other facility-level controls are not modeled.
 > - Batch power templates are calibrated on `V100 GPUs with an assumed rated power of 350 W` and rescaled to an `H100 80GB HBM3 GPUs with a rated power of 700 W` (see `GPU_POWER_SCALE` below).
 > - Inference arrival and token models are calibrated on `one week` of production trace data; longer simulations repeat that calendar pattern and are not independent samples of it.
-> - Outputs are synthetic and are intended only for *relative* comparisons of variability across workload compositions and scheduling policies. They are not measurements of any real facility, and they are not intended as a authoritative representation of data-center power demand.
+> - Outputs are synthetic and are intended only for *relative* comparisons of variability across workload compositions and scheduling policies. They are not intended as a authoritative representation of data-center power demand.
 
 ---
 ## Environment
@@ -130,11 +130,11 @@ All parameters are set at the top of `main()` in `run.py`.
 | `UTIL_RATE` | `0.81` | Label only: does not control utilization. |
 | `policy` | `1` | Inference GPU allocation: `0` = **Capped** (limited to `frac * TOTAL_GPUS`), `1` = **Uncapped** (up to `TOTAL_GPUS`). |
 | Inference | | |
-| `INF_TRAFFIC_SCALE_RAW` | `2.85` | Baseline scaling of inference arrival rates. The effective scale is `frac * INF_TRAFFIC_SCALE_RAW`. |
+| `INF_TRAFFIC_SCALE_RAW` | `2.85` | Scaling of inference arrival rates. The effective scale is `frac * INF_TRAFFIC_SCALE_RAW`. |
 | `VERBOSITY_SCALE` | `0.6` | Multiplier on generated-token lengths (`< 1` shorter outputs, `> 1` longer). |
 | `TOKEN_SPEED` | `"F"` | Token-generation speed class used to select model configurations: `"F"` fast, `"M"` medium, `"S"` slow. Classes are defined by average time per output token (see Supplementary Table 4). |
 | Batch | | |
-| `BAT_TRAFFIC_SCALE_RAW` | `0.85` | Baseline scaling of batch arrival rates. |
+| `BAT_TRAFFIC_SCALE_RAW` | `0.85` | Scaling of batch arrival rates. |
 | `LO_COEFF`, `MID_COEFF`, `HIGH_COEFF` | `1`, `1.2`, `1.2` | Multipliers for the low-, mid- and high-resource job groups. |
 | `COEFF_MULTIPLIERS` | derived | Per-group multipliers actually applied: `(1 - frac) * BAT_TRAFFIC_SCALE_RAW * <group coeff>`. |
 | `N_TZ` | `5` | Number of time-zone offsets in the batch arrival model. `N_TZ = 5` is the multi-time-zone variant |
@@ -156,7 +156,7 @@ All parameters are set at the top of `main()` in `run.py`.
 | `batch_arrivals`, `inf_arrivals` | Arrivals per minute |
 | `running_request_batch` | Running batch segments |
 
-`run_combined_power_analysis` also returns `mean_delay`, the mean extra time in minutes between a batch job's submission and its completion beyond its own runtime. `run.py` does not write it to disk.
+`run_combined_power_analysis` also returns `mean_delay`, the mean delay in batch job completion in minutes. `run.py` does not write it to disk.
 
 **Intermediate files** are written to `Temp/` (inference profiles, daily and second-level batch arrivals, hourly capacity, scheduled jobs, batch power series).
 
