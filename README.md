@@ -2,27 +2,6 @@
 
 The simulator generates synthetic inference and batch workloads from fitted statistical models, schedules workloads under different scheduling policies, generates workload-level power time series, and produces an aggregated data-center power profile.
 
-Code companion to:
-
-> **Workload composition smooths aggregate power demand but leaves short-horizon ramping elevated in AI data centers**
-> Subir Majumder, Minlan Yu, Le Xie
-> [arXiv:2604.10769](https://arxiv.org/abs/2604.10769)
-
-The paper describes the model, calibration and results. This repository contains the full scenario-generation simulator.
-
-| Resource | Where |
-|----------|-------|
-| Simulator (this repo) | scenario generation, scheduling, power co-simulation |
-| Replication package (Zenodo) | calibration code, processed model artifacts, processed public data, archived experiment outputs, and scripts to reproduce the paper's figures and tables: <https://doi.org/10.5281/zenodo.23417248> |
-| Raw traces | MIT SuperCloud (`s3://mit-supercloud-dataset/datacenter-challenge/202201/`), Azure LLM inference 2024 ([link](https://github.com/Azure/AzurePublicDataset/blob/master/AzureLLMInferenceDataset2024.md)), ML.ENERGY leaderboard ([link](https://ml.energy/leaderboard/)) |
-
----
-## Overview
-
-Modern GPU clusters may simultaneously serve latency-sensitive inference workloads and long-running batch jobs. Batch and inference workloads differ substantially in their arrival patterns, GPU requirements, runtimes, and power-consumption profiles. In addition, batch jobs can wait in scheduler-managed queues and, in some cases, can be paused and resumed through checkpointing. Inference workloads, by contrast, are latency-sensitive. Inference workload serving systems seek to keep queues short, process requests through continuous batching, and reroute requests when available GPUs cannot accommodate additional demand.
-
-This simulator provides an end-to-end framework for studying such mixed workloads.
-
 At a high level, the simulator performs the following pipeline:
 
 ```mermaid
@@ -47,7 +26,9 @@ flowchart TD
     I --> J["Data-center<br/>power trace"]
 ```
 
-Inference is simulated first because it has priority on the GPUs; batch jobs are scheduled on the capacity it leaves free.
+Inference is simulated first because it has priority on the GPUs; batch jobs are scheduled on the capacity it leaves free. 
+
+Multiple batch-job scheduling policies are used to assess the robustness of the power-demand results to scheduling assumptions. The scheduler implementations in this repository are intended for this sensitivity analysis and should not be treated as reference implementations for benchmarking or evaluating scheduling algorithms.
 
 ---
 ## Environment
