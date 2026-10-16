@@ -218,5 +218,5 @@ Released under the MIT license; see `LICENSE`.
 ## Contact
 
 - Subir Majumder: research@subirmajumder.com
-- Minlan Yu: minlanyu@seas.harvard.edu
+- Minlan Yu: minlanyu@g.harvard.edu
 - Le Xie: xie@seas.harvard.edu 
