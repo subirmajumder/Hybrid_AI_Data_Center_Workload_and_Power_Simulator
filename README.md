@@ -37,7 +37,7 @@ The batch workload models are calibrated using traces from a university computin
 > - The simulator models only workload-driven power. Cooling, on-site storage, backup generation, and other facility-level controls are not modeled.
 > - Batch power templates are calibrated on `V100 GPUs with an assumed rated power of 350 W` and rescaled to an `H100 80GB HBM3 GPUs with a rated power of 700 W` (see `GPU_POWER_SCALE` below).
 > - Inference arrival and token models are calibrated on `one week` of production trace data; longer simulations repeat that calendar pattern and are not independent samples of it.
-> - Outputs are synthetic and are intended only for *relative* comparisons of variability across workload compositions and scheduling policies. They are not intended as a authoritative representation of data-center power demand.
+> - Outputs are synthetic and are intended only for *relative* comparisons of variability across workload compositions and scheduling policies. 
 
 ---
 ## Environment
@@ -98,7 +98,6 @@ ProcessedData_Models/Batch/       nb_time_mu_alpha_bundle.pkl
 > | `conv_generated_tokens_model.json`, `code_generated_tokens_model.json` | `Analysis_ModelBuild/Supp_Tab_2_3_Supp_Fig_13_14_15.py` | Azure LLM trace |
 > | `inference_token_energy.csv` | n/a (Supp. Table 4) | ML.ENERGY |
 > 
->
 > Regenerated artifacts are expected to exactly match the shipped ones.
 
 ---
@@ -207,7 +206,7 @@ Random seeds are fixed in each module, so identical configurations reproduce ide
 │       ├── batch_hourlyarrival_ln_alr.pkl
 │       ├── batch_cluster_tl_gpu_dist.pkl
 │       ├── batch_runtime_dist.pkl
-│       └── power_data_ts_distribution/       # fitted power templates for batch jobs
+│       └── power_data_ts_distribution/      # fitted power templates for batch jobs
 ├── Temp/
 └── Results/
 ```
