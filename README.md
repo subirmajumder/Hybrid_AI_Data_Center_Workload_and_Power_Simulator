@@ -2,7 +2,7 @@
 
 The simulator generates synthetic inference and batch workloads from fitted statistical models, schedules workloads under different scheduling policies, generates workload-level power time series, and produces an aggregated data-center power profile.
 
-This repository is the code companion to **[Workload composition smooths aggregate power demand but leaves short-horizon ramping elevated in AI data centers](https://arxiv.org/abs/2604.10769)** (Subir Majumder, Minlan Yu, and Le Xie). It contains the simulator described in the paper's **main-text Methods** section, along with the calibrated model artifacts needed to run it. The broader [Zenodo replication package](https://doi.org/10.5281/zenodo.23417248) archives the experimental results obtained using this simulator. It also contains processed public data, calibrated model artifacts, and codes to reproduce/validate calibrated model artifacts used in this simulator.
+This repository is the code companion to **[Workload composition smooths aggregate power demand but leaves short-horizon ramping elevated in AI data centers](https://arxiv.org/abs/2604.10769)** (Subir Majumder, Minlan Yu, and Le Xie). It contains the simulator described in the paper's **main-text Methods** section, along with the calibrated model artifacts needed to run it. The broader [Zenodo replication package](https://doi.org/10.5281/zenodo.23432160) archives the experimental results obtained using this simulator. It also contains processed public data, calibrated model artifacts, and codes to reproduce/validate calibrated model artifacts used in this simulator.
 
 At a high level, the simulator performs the following pipeline:
 
@@ -225,7 +225,7 @@ Random seeds are fixed in each module, so identical configurations reproduce ide
   year          = {2026},
   eprint        = {2604.10769},
   archivePrefix = {arXiv},
-  note          = {Replication package: https://doi.org/10.5281/zenodo.23417248}
+  note          = {Replication package: https://doi.org/10.5281/zenodo.23432160}
 }
 ```
 Released under the MIT license; see `LICENSE`.
