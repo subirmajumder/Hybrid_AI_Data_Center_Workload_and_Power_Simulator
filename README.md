@@ -1,10 +1,12 @@
 # Hybrid AI Data-Center Workload & Power Simulator
 
-The simulator generates synthetic inference and batch workloads from fitted statistical models, schedules workloads under different scheduling policies, generates workload-level power time series, and produces an aggregated data-center power profile.
+This repository is the code companion to **[Workload composition smooths aggregate power demand but leaves short-horizon ramping elevated in AI data centers](https://arxiv.org/abs/2604.10769)** (Subir Majumder, Minlan Yu, and Le Xie).
 
-This repository is the code companion to **[Workload composition smooths aggregate power demand but leaves short-horizon ramping elevated in AI data centers](https://arxiv.org/abs/2604.10769)** (Subir Majumder, Minlan Yu, and Le Xie). It contains the simulator described in the paper's **main-text Methods** section, along with the calibrated model artifacts needed to run it. The broader [Zenodo replication package](https://doi.org/10.5281/zenodo.23432160) archives the experimental results obtained using this simulator. It also contains processed public data, calibrated model artifacts, and codes to reproduce/validate calibrated model artifacts used in this simulator.
+The simulator generates synthetic inference and batch workloads from fitted statistical models, schedules workloads under different scheduling policies, generates workload-level power time series, and produces an aggregated data-center power profile. It is designed to examine how the composition of batch and inference workloads in an AI data center shapes distinct dimensions of GPU power variability. The batch-job and inference-request serving configurations discussed later are used for sensitivity analysis (see *Configurations* below).
 
-At a high level, the simulator performs the following pipeline:
+The repository includes the simulator described in the manuscript's **Methods** section and the calibrated model artifacts required to execute it. The associated [Zenodo replication package](https://doi.org/10.5281/zenodo.23432160) archives the experimental results obtained using this simulator. The package also contains processed public data, calibrated model artifacts, and code to reproduce and validate the calibrated artifacts used in this simulator.
+
+At a high level, the simulator follows this pipeline:
 
 ```mermaid
 flowchart TD
@@ -28,16 +30,16 @@ flowchart TD
     I --> J["Data-center<br/>power trace"]
 ```
 
-Inference workloads are simulated first because they have priority access to GPUs; batch jobs are then scheduled on the remaining available capacity. 
+Inference workloads are simulated first because they have priority access to GPUs; batch jobs are then scheduled on the remaining available capacity.
 
-The batch workload models are calibrated using traces from a university computing cluster, whereas the inference workload models are calibrated using production-system traces. These traces do not represent the full diversity of AI data-center workloads. The scheduling policies implemented in this simulator are simplified abstractions. Multiple batch-job scheduling policies are included to assess the sensitivity of data-center power-demand results to scheduling assumptions. 
+The batch workload models are calibrated using traces from a university computing cluster, whereas the inference workload models are calibrated using production-system traces. These traces do not represent the full diversity of AI data-center workloads. The scheduling policies implemented in this simulator are simplified abstractions. Multiple batch-job scheduling policies are included to assess the sensitivity of data-center power-demand results to scheduling assumptions.
 
-**Scope and limitations**
+> **Scope and limitations**
 >
 > - The simulator models only workload-driven power. Cooling, on-site storage, backup generation, and other facility-level controls are not modeled.
-> - Batch power templates are calibrated on `V100 GPUs with an assumed rated power of 350 W` and rescaled to an `H100 80GB HBM3 GPUs with a rated power of 700 W` (see `GPU_POWER_SCALE` below).
-> - Inference arrival and token models are calibrated on `one week` of production trace data; longer simulations repeat that calendar pattern and are not independent samples of it.
-> - Outputs are synthetic and are intended only for *relative* comparisons of variability across workload compositions and scheduling policies. 
+> - Batch power templates are calibrated using jobs that ran on `V100 GPUs` (assumed rated power: 350 W). Batch power is then rescaled to `H100 80GB HBM3 GPUs` (rated power: 700 W); see `GPU_POWER_SCALE` below.
+> - Inference arrival and token models are calibrated on one week of production trace data; longer simulations repeat that calendar pattern and are not independent samples of the underlying process.
+> - Outputs are synthetic and are intended only for *relative* comparisons of variability across workload compositions and scheduling policies.
 
 ---
 ## Environment
@@ -57,8 +59,8 @@ Install dependencies with:
 pip install -r requirements.txt
 ```
 
-> The fitted-model `.pkl` files were saved with the versions listed above and may fail to load, or load incorrectly, under different statsmodels / NumPy / pandas versions. You may regenerate the artifacts (see *Regenerating the calibrated artifacts* below).
-> 
+> The fitted-model `.pkl` files were saved with the versions listed above and may fail to load, or load incorrectly, under different statsmodels / NumPy / pandas versions. If loading fails, you can regenerate the artifacts (see *Regenerating the calibrated artifacts* below).
+
 ---
 ## Model files needed
 
@@ -82,7 +84,7 @@ ProcessedData_Models/Batch/       nb_time_mu_alpha_bundle.pkl
 
 **Regenerating the calibrated artifacts**
 
-> The files above are produced by the calibration code in the Zenodo package. Raw data sources:
+> The model files above are produced by the calibration code in the Zenodo package. Raw data sources:
 >
 > - **Batch jobs and power profiles:** MIT SuperCloud dataset (`s3://mit-supercloud-dataset/datacenter-challenge/202201/`)
 > - **Inference requests:** Azure LLM Inference Dataset 2024 (https://github.com/Azure/AzurePublicDataset/blob/master/AzureLLMInferenceDataset2024.md)
@@ -97,8 +99,8 @@ ProcessedData_Models/Batch/       nb_time_mu_alpha_bundle.pkl
 > | `nb2_model_alpha.pkl` | `Analysis_ModelBuild/Supp_Tab_2_3_Supp_Fig_13_14_15.py` | Azure LLM trace |
 > | `conv_generated_tokens_model.json`, `code_generated_tokens_model.json` | `Analysis_ModelBuild/Supp_Tab_2_3_Supp_Fig_13_14_15.py` | Azure LLM trace |
 > | `inference_token_energy.csv` | n/a (Supp. Table 4) | ML.ENERGY |
-> 
-> Regenerated artifacts are expected to exactly match the shipped ones.
+>
+> Regenerated artifacts should reproduce the reported calibration results.
 
 ---
 ## Running a scenario
@@ -111,13 +113,14 @@ ProcessedData_Models/Batch/       nb_time_mu_alpha_bundle.pkl
 python run.py
 ```
 
-The result is written to `Results/` with the main parameters in the file name, for example
+The result is written to `Results/` with the main parameters in the file name. For example:
 `power_frac=0p3_gpus=250_util=0p81_verb=0.6_speed=F_..._scheduler=SWF_pol=1.csv`.
 
-Every module can also run alone: each has a `__main__` block with example defaults, reading and writing under `Temp/`.
+Every module can also be run on its own: each has a `__main__` block with example defaults, and reads from and writes to `Temp/`.
 
 ---
-### Configurations
+## Configurations
+
 All parameters are set at the top of `main()` in `run.py`.
 
 | Parameter | Default | Description |
@@ -129,18 +132,18 @@ All parameters are set at the top of `main()` in `run.py`.
 | `UTIL_RATE` | `0.81` | Label only: does not control utilization. |
 | `policy` | `1` | Inference GPU allocation: `0` = **Capped** (limited to `frac * TOTAL_GPUS`), `1` = **Uncapped** (up to `TOTAL_GPUS`). |
 | Inference | | |
-| `INF_TRAFFIC_SCALE_RAW` | `2.85` | Scaling of inference arrival rates. The effective scale is `frac * INF_TRAFFIC_SCALE_RAW`. |
+| `INF_TRAFFIC_SCALE_RAW` | `2.85` | Scale factor for inference arrival rates. The effective scale is `frac * INF_TRAFFIC_SCALE_RAW`. |
 | `VERBOSITY_SCALE` | `0.6` | Multiplier on generated-token lengths (`< 1` shorter outputs, `> 1` longer). |
 | `TOKEN_SPEED` | `"F"` | Token-generation speed class used to select model configurations: `"F"` fast, `"M"` medium, `"S"` slow. Classes are defined by average time per output token (see Supplementary Table 4). |
 | Batch | | |
-| `BAT_TRAFFIC_SCALE_RAW` | `0.85` | Scaling of batch arrival rates. |
-| `LO_COEFF`, `MID_COEFF`, `HIGH_COEFF` | `1`, `1.2`, `1.2` | Multipliers for the low-, mid- and high-resource job groups. |
+| `BAT_TRAFFIC_SCALE_RAW` | `0.85` | Scale factor for batch arrival rates. |
+| `LO_COEFF`, `MID_COEFF`, `HIGH_COEFF` | `1`, `1.2`, `1.2` | Multipliers for the low-, mid-, and high-resource job groups. |
 | `COEFF_MULTIPLIERS` | derived | Per-group multipliers actually applied: `(1 - frac) * BAT_TRAFFIC_SCALE_RAW * <group coeff>`. |
-| `N_TZ` | `5` | Number of time-zone offsets in the batch arrival model. `N_TZ = 5` is the multi-time-zone variant |
+| `N_TZ` | `5` | Number of time-zone offsets in the batch arrival model. `N_TZ = 5` is the multi-time-zone variant. |
 | `SEGMENT_DURATION` | `7200` | Checkpoint segment length for batch jobs, in seconds. |
-| `SCHEDULER` | `"SWF"` | `"FCFS_BKFL"` = first-come-first-served with backfilling; `"SWF"` = greedy smallest-work-first (sorted by GPUs, then runtime). SWF uses realized runtimes (clairvoyant). We use these schedulers as a part of sensitivity analysis. Please check our scheduler implementation for details. |
+| `SCHEDULER` | `"SWF"` | `"FCFS_BKFL"` = first-come-first-served with backfilling; `"SWF"` = greedy smallest-work-first (sorted by GPUs, then runtime). SWF uses realized runtimes (clairvoyant). We use these schedulers as part of the sensitivity analysis. See the scheduler implementation for details. |
 
-**Targeting a utilization.** Utilization is not an input. It results from `TOTAL_GPUS` and the traffic-scale parameters. 
+**Targeting a utilization level.** Utilization is not an input. It results from `TOTAL_GPUS` and the traffic-scale parameters.
 
 ---
 ## Outputs
@@ -155,17 +158,17 @@ All parameters are set at the top of `main()` in `run.py`.
 | `batch_arrivals`, `inf_arrivals` | Arrivals per minute |
 | `running_request_batch` | Running batch segments |
 
-`run_combined_power_analysis` also returns `mean_delay`, the mean delay in batch job completion in minutes. `run.py` does not write it to disk.
+`run_combined_power_analysis` also returns `mean_delay`, the mean delay in batch-job completion, in minutes. `run.py` does not write it to disk.
 
 **Intermediate files** are written to `Temp/` (inference profiles, daily and second-level batch arrivals, hourly capacity, scheduled jobs, batch power series).
 
 ---
 ## Modeling assumptions and conventions
 
-- Time limits are in minutes, runtimes in seconds, power in kW, and all times are naive timestamps.
-- Inference has priority. Batch only sees the capacity left after the hourly peak of inference GPU use.
+- Time limits are in minutes, runtimes in seconds, and power in kW. All timestamps are timezone-naive.
+- Inference has priority. Batch sees only the capacity left after the hourly peak of inference GPU use.
 - The power scaling constant (`GPU_POWER_SCALE = 2.0`) is hard-coded in `aggregate_power_profiles.py`.
-- Segments of one job are assumed to share cluster, GPU count, time limit and runtime. Power samples beyond the segments' total duration are discarded.
+- Segments of one job are assumed to share cluster, GPU count, time limit, and runtime. Power samples beyond the segments' total duration are discarded.
 
 ---
 ## Reproducibility
@@ -175,7 +178,7 @@ Random seeds are fixed in each module, so identical configurations reproduce ide
 ---
 ## Repository layout
 
-``run.py`` imports each module from the folders below, so keep this structure.
+`run.py` imports each module from the folders below, so keep this structure.
 
 ```text
 .
@@ -196,12 +199,12 @@ Random seeds are fixed in each module, so identical configurations reproduce ide
 ├── data/
 │   └── ml_energy_data/
 │       └── inference_token_energy.csv
-└── ProcessedData_Models/
-|   ├── Inference/                           # fitted inference models
+├── ProcessedData_Models/
+│   ├── Inference/                           # fitted inference models
 │   │   ├── nb2_model_alpha.pkl
 │   │   ├── conv_generated_tokens_model.json
 │   │   └── code_generated_tokens_model.json
-|   └── Batch/                               # fitted batch models + power templates
+│   └── Batch/                               # fitted batch models + power templates
 │       ├── nb_time_mu_alpha_bundle.pkl
 │       ├── batch_hourlyarrival_ln_alr.pkl
 │       ├── batch_cluster_tl_gpu_dist.pkl
@@ -224,9 +227,11 @@ Random seeds are fixed in each module, so identical configurations reproduce ide
   year          = {2026},
   eprint        = {2604.10769},
   archivePrefix = {arXiv},
+  url           = {https://arxiv.org/abs/2604.10769},
   note          = {Replication package: https://doi.org/10.5281/zenodo.23432160}
 }
 ```
+
 Released under the MIT license; see `LICENSE`.
 
 ---
@@ -234,4 +239,4 @@ Released under the MIT license; see `LICENSE`.
 
 - Subir Majumder: research@subirmajumder.com
 - Minlan Yu: minlanyu@g.harvard.edu
-- Le Xie: xie@seas.harvard.edu 
+- Le Xie: xie@seas.harvard.edu
